@@ -38,6 +38,48 @@ export type Database = {
         }
         Relationships: []
       }
+      ebooks: {
+        Row: {
+          autor: string | null
+          capa_url: string | null
+          capitulos: Json
+          created_at: string
+          descricao: string | null
+          id: string
+          preco: number | null
+          publicado: boolean
+          subtitulo: string | null
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          autor?: string | null
+          capa_url?: string | null
+          capitulos?: Json
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          preco?: number | null
+          publicado?: boolean
+          subtitulo?: string | null
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          autor?: string | null
+          capa_url?: string | null
+          capitulos?: Json
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          preco?: number | null
+          publicado?: boolean
+          subtitulo?: string | null
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -79,6 +121,27 @@ export type Database = {
           peso?: number | null
           tema?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
@@ -127,10 +190,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -257,6 +326,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
