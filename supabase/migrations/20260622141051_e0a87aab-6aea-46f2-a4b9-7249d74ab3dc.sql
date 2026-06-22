@@ -29,7 +29,7 @@ CREATE POLICY "admins manage roles" ON public.user_roles FOR ALL TO authenticate
 
 -- Promote current user
 INSERT INTO public.user_roles (user_id, role)
-SELECT user_id, 'admin'::public.app_role FROM public.profiles WHERE email = 'vital.crispiniano@gmail.com'
+SELECT user_id, 'admin'::public.app_role FROM public.profiles WHERE email = 'REDACTED_ADMIN_EMAIL'
 ON CONFLICT DO NOTHING;
 
 -- Ebooks (products)
