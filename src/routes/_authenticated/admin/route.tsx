@@ -39,7 +39,7 @@ function AdminLayout() {
           return (
             <Link
               key={t.to}
-              to={t.to}
+              to={t.to as any}
               className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm whitespace-nowrap transition ${
                 active ? "bg-primary text-primary-foreground" : "hover:bg-muted"
               }`}
