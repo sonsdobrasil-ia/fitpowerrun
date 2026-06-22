@@ -18,7 +18,6 @@ import { Route as AuthenticatedProgressRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedEbookRouteImport } from './routes/_authenticated/ebook'
-import { Route as AuthenticatedDebugRoleRouteImport } from './routes/_authenticated/debug-role'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
@@ -71,11 +70,6 @@ const AuthenticatedEbookRoute = AuthenticatedEbookRouteImport.update({
   path: '/ebook',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDebugRoleRoute = AuthenticatedDebugRoleRouteImport.update({
-  id: '/debug-role',
-  path: '/debug-role',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -120,7 +114,6 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/debug-role': typeof AuthenticatedDebugRoleRoute
   '/ebook': typeof AuthenticatedEbookRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -137,7 +130,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/debug-role': typeof AuthenticatedDebugRoleRoute
   '/ebook': typeof AuthenticatedEbookRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -157,7 +149,6 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/debug-role': typeof AuthenticatedDebugRoleRoute
   '/_authenticated/ebook': typeof AuthenticatedEbookRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -177,7 +168,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/dashboard'
-    | '/debug-role'
     | '/ebook'
     | '/onboarding'
     | '/profile'
@@ -194,7 +184,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/dashboard'
-    | '/debug-role'
     | '/ebook'
     | '/onboarding'
     | '/profile'
@@ -213,7 +202,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
-    | '/_authenticated/debug-role'
     | '/_authenticated/ebook'
     | '/_authenticated/onboarding'
     | '/_authenticated/profile'
@@ -298,13 +286,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEbookRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/debug-role': {
-      id: '/_authenticated/debug-role'
-      path: '/debug-role'
-      fullPath: '/debug-role'
-      preLoaderRoute: typeof AuthenticatedDebugRoleRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -380,7 +361,6 @@ const AuthenticatedAdminRouteRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedDebugRoleRoute: typeof AuthenticatedDebugRoleRoute
   AuthenticatedEbookRoute: typeof AuthenticatedEbookRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -392,7 +372,6 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedDebugRoleRoute: AuthenticatedDebugRoleRoute,
   AuthenticatedEbookRoute: AuthenticatedEbookRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
@@ -413,13 +392,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
