@@ -49,7 +49,6 @@ function Workouts() {
                     <Link
                       to="/workout/$id"
                       params={{ id: w.id }}
-                      disabled={status === "locked"}
                       className={`flex items-center gap-4 rounded-2xl p-4 border shadow-soft transition ${
                         status === "locked" ? "bg-muted opacity-60 pointer-events-none" :
                         status === "done" ? "bg-success/10 border-success/30" : "bg-card active:scale-[0.99]"
