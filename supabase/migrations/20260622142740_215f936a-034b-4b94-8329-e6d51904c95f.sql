@@ -1,6 +1,6 @@
 INSERT INTO public.user_roles (user_id, role)
 SELECT id, 'admin'::public.app_role FROM auth.users
-WHERE email = 'vital.crispiniano@gmail.com'
+WHERE email = 'REDACTED_ADMIN_EMAIL'
 ON CONFLICT DO NOTHING;
 
 -- Fallback: if still no admin, promote the oldest existing user
