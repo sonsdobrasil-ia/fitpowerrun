@@ -18,12 +18,12 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
-const tabs = [
+const tabs: { to: string; icon: any; label: string; exact?: boolean }[] = [
   { to: "/admin", icon: LayoutDashboard, label: "Painel", exact: true },
   { to: "/admin/ebooks", icon: BookOpen, label: "Produtos" },
   { to: "/admin/users", icon: Users, label: "Usuários" },
   { to: "/admin/billing", icon: Receipt, label: "Faturamento" },
-] as const;
+];
 
 function AdminLayout() {
   const { pathname } = useLocation();
