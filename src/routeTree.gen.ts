@@ -22,6 +22,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedWorkoutIdRouteImport } from './routes/_authenticated/workout.$id'
+import { Route as AuthenticatedEbookIdRouteImport } from './routes/_authenticated/ebook.$id'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminEbooksRouteImport } from './routes/_authenticated/admin/ebooks'
 import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin/billing'
@@ -90,6 +91,11 @@ const AuthenticatedWorkoutIdRoute = AuthenticatedWorkoutIdRouteImport.update({
   path: '/workout/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEbookIdRoute = AuthenticatedEbookIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedEbookRoute,
+} as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -114,7 +120,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/ebook': typeof AuthenticatedEbookRoute
+  '/ebook': typeof AuthenticatedEbookRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/progress': typeof AuthenticatedProgressRoute
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/ebook/$id': typeof AuthenticatedEbookIdRoute
   '/workout/$id': typeof AuthenticatedWorkoutIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -130,7 +137,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/ebook': typeof AuthenticatedEbookRoute
+  '/ebook': typeof AuthenticatedEbookRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/progress': typeof AuthenticatedProgressRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/ebook/$id': typeof AuthenticatedEbookIdRoute
   '/workout/$id': typeof AuthenticatedWorkoutIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -149,7 +157,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/ebook': typeof AuthenticatedEbookRoute
+  '/_authenticated/ebook': typeof AuthenticatedEbookRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/progress': typeof AuthenticatedProgressRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/_authenticated/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/ebook/$id': typeof AuthenticatedEbookIdRoute
   '/_authenticated/workout/$id': typeof AuthenticatedWorkoutIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/admin/billing'
     | '/admin/ebooks'
     | '/admin/users'
+    | '/ebook/$id'
     | '/workout/$id'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/admin/billing'
     | '/admin/ebooks'
     | '/admin/users'
+    | '/ebook/$id'
     | '/workout/$id'
     | '/admin'
   id:
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/billing'
     | '/_authenticated/admin/ebooks'
     | '/_authenticated/admin/users'
+    | '/_authenticated/ebook/$id'
     | '/_authenticated/workout/$id'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -314,6 +326,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWorkoutIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ebook/$id': {
+      id: '/_authenticated/ebook/$id'
+      path: '/$id'
+      fullPath: '/ebook/$id'
+      preLoaderRoute: typeof AuthenticatedEbookIdRouteImport
+      parentRoute: typeof AuthenticatedEbookRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/users'
@@ -358,10 +377,21 @@ const AuthenticatedAdminRouteRouteWithChildren =
     AuthenticatedAdminRouteRouteChildren,
   )
 
+interface AuthenticatedEbookRouteChildren {
+  AuthenticatedEbookIdRoute: typeof AuthenticatedEbookIdRoute
+}
+
+const AuthenticatedEbookRouteChildren: AuthenticatedEbookRouteChildren = {
+  AuthenticatedEbookIdRoute: AuthenticatedEbookIdRoute,
+}
+
+const AuthenticatedEbookRouteWithChildren =
+  AuthenticatedEbookRoute._addFileChildren(AuthenticatedEbookRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedEbookRoute: typeof AuthenticatedEbookRoute
+  AuthenticatedEbookRoute: typeof AuthenticatedEbookRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProgressRoute: typeof AuthenticatedProgressRoute
@@ -372,7 +402,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedEbookRoute: AuthenticatedEbookRoute,
+  AuthenticatedEbookRoute: AuthenticatedEbookRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProgressRoute: AuthenticatedProgressRoute,
