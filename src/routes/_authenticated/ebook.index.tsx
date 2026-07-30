@@ -1,18 +1,30 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CAPITULOS } from "@/lib/ebook";
 import { supabase } from "@/integrations/supabase/client";
+import { CoverImage } from "@/components/CoverImage";
 import jsPDF from "jspdf";
 import { ChevronDown, Download, BookOpen, Check } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/ebook")({
+export const Route = createFileRoute("/_authenticated/ebook/")({
   component: Ebook,
 });
+
+type Biblioteca = {
+  id: string;
+  titulo: string;
+  descricao: string | null;
+  categoria: string | null;
+  paginas: number | null;
+  capa_url: string | null;
+  percentual: number;
+};
 
 function Ebook() {
   const [open, setOpen] = useState<string | null>(null);
   const [lidos, setLidos] = useState<Set<string>>(new Set());
+  const [biblioteca, setBiblioteca] = useState<Biblioteca[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -20,8 +32,29 @@ function Ebook() {
       if (!u.user) return;
       const { data } = await supabase.from("ebook_progress").select("capitulo").eq("user_id", u.user.id).eq("lido", true);
       setLidos(new Set((data ?? []).map((r) => r.capitulo)));
+
+      const [{ data: books }, { data: progresso }] = await Promise.all([
+        supabase
+          .from("ebooks")
+          .select("id, titulo, descricao, categoria, paginas, capa_url, pdf_url")
+          .eq("publicado", true)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("ebook_reading_progress")
+          .select("ebook_id, percentual")
+          .eq("user_id", u.user.id),
+      ]);
+      const map = new Map(
+        ((progresso as any[]) ?? []).map((p) => [p.ebook_id, Number(p.percentual ?? 0)]),
+      );
+      setBiblioteca(
+        ((books as any[]) ?? [])
+          .filter((b) => b.pdf_url)
+          .map((b) => ({ ...b, percentual: map.get(b.id) ?? 0 })),
+      );
     })();
   }, []);
+
 
   async function marcarLido(capId: string) {
     const { data: u } = await supabase.auth.getUser();
@@ -74,6 +107,48 @@ function Ebook() {
         </div>
         <BookOpen className="size-8 text-primary mt-1" />
       </header>
+
+      {biblioteca.length > 0 && (
+        <section className="mt-6">
+          <h2 className="font-bold text-lg mb-3">Sua biblioteca</h2>
+          <ul className="space-y-3">
+            {biblioteca.map((b) => (
+              <li key={b.id}>
+                <Link
+                  to="/ebook/$id"
+                  params={{ id: b.id }}
+                  className="flex gap-3 rounded-2xl bg-card border p-3 shadow-soft"
+                >
+                  <CoverImage
+                    value={b.capa_url}
+                    alt={b.titulo}
+                    className="h-24 w-18 rounded-lg object-cover bg-muted shrink-0"
+                    fallback={<div className="h-24 w-16 rounded-lg bg-muted shrink-0" />}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold truncate">{b.titulo}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{b.descricao}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      {b.categoria} · {b.paginas ?? 0} páginas
+                    </p>
+                    <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-energy"
+                        style={{ width: `${Math.round(b.percentual)}%` }}
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      {Math.round(b.percentual)}% lido
+                    </p>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+
 
       <div className="mt-5 rounded-2xl bg-card border p-4 shadow-soft">
         <div className="flex justify-between text-sm">

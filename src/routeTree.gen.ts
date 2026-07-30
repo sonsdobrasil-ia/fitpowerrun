@@ -17,11 +17,12 @@ import { Route as AuthenticatedWorkoutsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProgressRouteImport } from './routes/_authenticated/progress'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
-import { Route as AuthenticatedEbookRouteImport } from './routes/_authenticated/ebook'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedEbookIndexRouteImport } from './routes/_authenticated/ebook.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedWorkoutIdRouteImport } from './routes/_authenticated/workout.$id'
+import { Route as AuthenticatedEbookIdRouteImport } from './routes/_authenticated/ebook.$id'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminEbooksRouteImport } from './routes/_authenticated/admin/ebooks'
 import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin/billing'
@@ -65,11 +66,6 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedEbookRoute = AuthenticatedEbookRouteImport.update({
-  id: '/ebook',
-  path: '/ebook',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -80,6 +76,11 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEbookIndexRoute = AuthenticatedEbookIndexRouteImport.update({
+  id: '/ebook/',
+  path: '/ebook/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -88,6 +89,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
 const AuthenticatedWorkoutIdRoute = AuthenticatedWorkoutIdRouteImport.update({
   id: '/workout/$id',
   path: '/workout/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEbookIdRoute = AuthenticatedEbookIdRouteImport.update({
+  id: '/ebook/$id',
+  path: '/ebook/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
@@ -114,7 +120,6 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/ebook': typeof AuthenticatedEbookRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/progress': typeof AuthenticatedProgressRoute
@@ -122,15 +127,16 @@ export interface FileRoutesByFullPath {
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/ebook/$id': typeof AuthenticatedEbookIdRoute
   '/workout/$id': typeof AuthenticatedWorkoutIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/ebook/': typeof AuthenticatedEbookIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/ebook': typeof AuthenticatedEbookRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/progress': typeof AuthenticatedProgressRoute
@@ -138,8 +144,10 @@ export interface FileRoutesByTo {
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/ebook/$id': typeof AuthenticatedEbookIdRoute
   '/workout/$id': typeof AuthenticatedWorkoutIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/ebook': typeof AuthenticatedEbookIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -149,7 +157,6 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/ebook': typeof AuthenticatedEbookRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/progress': typeof AuthenticatedProgressRoute
@@ -157,8 +164,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/_authenticated/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/ebook/$id': typeof AuthenticatedEbookIdRoute
   '/_authenticated/workout/$id': typeof AuthenticatedWorkoutIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/ebook/': typeof AuthenticatedEbookIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -168,7 +177,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/dashboard'
-    | '/ebook'
     | '/onboarding'
     | '/profile'
     | '/progress'
@@ -176,15 +184,16 @@ export interface FileRouteTypes {
     | '/admin/billing'
     | '/admin/ebooks'
     | '/admin/users'
+    | '/ebook/$id'
     | '/workout/$id'
     | '/admin/'
+    | '/ebook/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/reset-password'
     | '/dashboard'
-    | '/ebook'
     | '/onboarding'
     | '/profile'
     | '/progress'
@@ -192,8 +201,10 @@ export interface FileRouteTypes {
     | '/admin/billing'
     | '/admin/ebooks'
     | '/admin/users'
+    | '/ebook/$id'
     | '/workout/$id'
     | '/admin'
+    | '/ebook'
   id:
     | '__root__'
     | '/'
@@ -202,7 +213,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
-    | '/_authenticated/ebook'
     | '/_authenticated/onboarding'
     | '/_authenticated/profile'
     | '/_authenticated/progress'
@@ -210,8 +220,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/billing'
     | '/_authenticated/admin/ebooks'
     | '/_authenticated/admin/users'
+    | '/_authenticated/ebook/$id'
     | '/_authenticated/workout/$id'
     | '/_authenticated/admin/'
+    | '/_authenticated/ebook/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -279,13 +291,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/ebook': {
-      id: '/_authenticated/ebook'
-      path: '/ebook'
-      fullPath: '/ebook'
-      preLoaderRoute: typeof AuthenticatedEbookRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -300,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ebook/': {
+      id: '/_authenticated/ebook/'
+      path: '/ebook'
+      fullPath: '/ebook/'
+      preLoaderRoute: typeof AuthenticatedEbookIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -312,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/workout/$id'
       fullPath: '/workout/$id'
       preLoaderRoute: typeof AuthenticatedWorkoutIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ebook/$id': {
+      id: '/_authenticated/ebook/$id'
+      path: '/ebook/$id'
+      fullPath: '/ebook/$id'
+      preLoaderRoute: typeof AuthenticatedEbookIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/users': {
@@ -361,23 +380,25 @@ const AuthenticatedAdminRouteRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedEbookRoute: typeof AuthenticatedEbookRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProgressRoute: typeof AuthenticatedProgressRoute
   AuthenticatedWorkoutsRoute: typeof AuthenticatedWorkoutsRoute
+  AuthenticatedEbookIdRoute: typeof AuthenticatedEbookIdRoute
   AuthenticatedWorkoutIdRoute: typeof AuthenticatedWorkoutIdRoute
+  AuthenticatedEbookIndexRoute: typeof AuthenticatedEbookIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedEbookRoute: AuthenticatedEbookRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProgressRoute: AuthenticatedProgressRoute,
   AuthenticatedWorkoutsRoute: AuthenticatedWorkoutsRoute,
+  AuthenticatedEbookIdRoute: AuthenticatedEbookIdRoute,
   AuthenticatedWorkoutIdRoute: AuthenticatedWorkoutIdRoute,
+  AuthenticatedEbookIndexRoute: AuthenticatedEbookIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

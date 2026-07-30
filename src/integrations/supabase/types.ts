@@ -38,14 +38,58 @@ export type Database = {
         }
         Relationships: []
       }
+      ebook_reading_progress: {
+        Row: {
+          created_at: string
+          ebook_id: string
+          id: string
+          pagina_atual: number
+          percentual: number
+          total_paginas: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ebook_id: string
+          id?: string
+          pagina_atual?: number
+          percentual?: number
+          total_paginas?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ebook_id?: string
+          id?: string
+          pagina_atual?: number
+          percentual?: number
+          total_paginas?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ebook_reading_progress_ebook_id_fkey"
+            columns: ["ebook_id"]
+            isOneToOne: false
+            referencedRelation: "ebooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ebooks: {
         Row: {
           autor: string | null
           capa_url: string | null
           capitulos: Json
+          categoria: string | null
           created_at: string
           descricao: string | null
           id: string
+          paginas: number | null
+          pdf_url: string | null
           preco: number | null
           publicado: boolean
           subtitulo: string | null
@@ -56,9 +100,12 @@ export type Database = {
           autor?: string | null
           capa_url?: string | null
           capitulos?: Json
+          categoria?: string | null
           created_at?: string
           descricao?: string | null
           id?: string
+          paginas?: number | null
+          pdf_url?: string | null
           preco?: number | null
           publicado?: boolean
           subtitulo?: string | null
@@ -69,9 +116,12 @@ export type Database = {
           autor?: string | null
           capa_url?: string | null
           capitulos?: Json
+          categoria?: string | null
           created_at?: string
           descricao?: string | null
           id?: string
+          paginas?: number | null
+          pdf_url?: string | null
           preco?: number | null
           publicado?: boolean
           subtitulo?: string | null

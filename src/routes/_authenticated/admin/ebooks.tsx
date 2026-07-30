@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,59 +10,62 @@ import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Upload, ArrowUp, ArrowDown, X, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Loader2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { uploadCover, deleteCover } from "@/lib/ebook-covers";
+import { uploadPdf, deletePdf, CATEGORIAS } from "@/lib/ebook-files";
+import { extractPdfInfo } from "@/lib/pdf";
 import { CoverImage } from "@/components/CoverImage";
 
 export const Route = createFileRoute("/_authenticated/admin/ebooks")({
   component: AdminEbooks,
 });
 
-const chapterSchema = z.object({
-  titulo: z.string().trim().min(1, "Título do capítulo é obrigatório").max(200),
-  conteudo: z.string().trim().min(1, "Conteúdo do capítulo é obrigatório").max(50000),
-});
-
 const ebookSchema = z.object({
   titulo: z.string().trim().min(2, "Mínimo 2 caracteres").max(200),
-  subtitulo: z.string().trim().max(200).optional().nullable(),
-  autor: z.string().trim().max(120).optional().nullable(),
   descricao: z.string().trim().max(2000).optional().nullable(),
-  capa_url: z.string().trim().max(500).optional().nullable(),
+  categoria: z.string().trim().min(1, "Selecione uma categoria").max(60),
+  paginas: z.number().int().min(1, "Informe o número de páginas").max(10000),
   preco: z.number().min(0, "Preço não pode ser negativo").max(99999),
+  capa_url: z.string().trim().max(500).optional().nullable(),
+  pdf_url: z.string().trim().max(500).optional().nullable(),
   publicado: z.boolean(),
-  capitulos: z.array(chapterSchema),
 });
 
-type Chapter = z.infer<typeof chapterSchema>;
 type Ebook = {
   id: string;
   titulo: string;
-  subtitulo: string | null;
   descricao: string | null;
-  autor: string | null;
+  categoria: string | null;
+  paginas: number | null;
   capa_url: string | null;
+  pdf_url: string | null;
   preco: number | null;
   publicado: boolean;
-  capitulos: Chapter[];
 };
 
 const empty = (): Partial<Ebook> => ({
   titulo: "",
-  subtitulo: "",
   descricao: "",
-  autor: "",
+  categoria: "",
+  paginas: 0,
   capa_url: "",
+  pdf_url: "",
   preco: 0,
   publicado: false,
-  capitulos: [],
 });
 
 function AdminEbooks() {
@@ -78,12 +81,7 @@ function AdminEbooks() {
       .select("*")
       .order("created_at", { ascending: false });
     if (error) return toast.error(error.message);
-    setList(
-      ((data as any[]) ?? []).map((e) => ({
-        ...e,
-        capitulos: Array.isArray(e.capitulos) ? e.capitulos : [],
-      })),
-    );
+    setList((data as any[]) ?? []);
   };
   useEffect(() => {
     load();
@@ -91,51 +89,25 @@ function AdminEbooks() {
 
   const open = (e?: Ebook) => {
     setErrors({});
-    setEditing(e ? { ...e, capitulos: [...(e.capitulos ?? [])] } : empty());
+    setEditing(e ? { ...e } : empty());
   };
 
-  const updateChapter = (i: number, patch: Partial<Chapter>) => {
+  const onUploadPdf = async (file: File) => {
     if (!editing) return;
-    const cap = [...(editing.capitulos ?? [])];
-    cap[i] = { ...cap[i], ...patch } as Chapter;
-    setEditing({ ...editing, capitulos: cap });
-  };
-  const addChapter = () => {
-    if (!editing) return;
-    setEditing({
-      ...editing,
-      capitulos: [...(editing.capitulos ?? []), { titulo: "", conteudo: "" }],
-    });
-  };
-  const removeChapter = (i: number) => {
-    if (!editing) return;
-    const cap = [...(editing.capitulos ?? [])];
-    cap.splice(i, 1);
-    setEditing({ ...editing, capitulos: cap });
-  };
-  const moveChapter = (i: number, dir: -1 | 1) => {
-    if (!editing) return;
-    const cap = [...(editing.capitulos ?? [])];
-    const j = i + dir;
-    if (j < 0 || j >= cap.length) return;
-    [cap[i], cap[j]] = [cap[j], cap[i]];
-    setEditing({ ...editing, capitulos: cap });
-  };
-
-  const onUpload = async (file: File) => {
-    if (!editing) return;
-    if (!file.type.startsWith("image/")) return toast.error("Selecione uma imagem");
-    if (file.size > 4 * 1024 * 1024) return toast.error("Imagem deve ter até 4MB");
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      return toast.error("Selecione um arquivo PDF");
+    }
+    if (file.size > 50 * 1024 * 1024) return toast.error("O PDF deve ter até 50MB");
     setUploading(true);
     try {
-      const path = await uploadCover(file);
-      if (editing.capa_url && !/^https?:\/\//i.test(editing.capa_url)) {
-        await deleteCover(editing.capa_url);
-      }
-      setEditing({ ...editing, capa_url: path });
-      toast.success("Capa enviada");
+      const { pages, cover } = await extractPdfInfo(file);
+      const [pdfPath, coverPath] = await Promise.all([uploadPdf(file), uploadCover(cover)]);
+      if (editing.pdf_url) await deletePdf(editing.pdf_url);
+      if (editing.capa_url) await deleteCover(editing.capa_url);
+      setEditing({ ...editing, pdf_url: pdfPath, capa_url: coverPath, paginas: pages });
+      toast.success(`PDF enviado — ${pages} páginas, capa extraída da 1ª página`);
     } catch (e: any) {
-      toast.error(e.message ?? "Falha no upload");
+      toast.error(e.message ?? "Falha ao processar o PDF");
     } finally {
       setUploading(false);
     }
@@ -145,13 +117,13 @@ function AdminEbooks() {
     if (!editing) return;
     const parsed = ebookSchema.safeParse({
       titulo: editing.titulo ?? "",
-      subtitulo: editing.subtitulo ?? null,
-      autor: editing.autor ?? null,
       descricao: editing.descricao ?? null,
-      capa_url: editing.capa_url ?? null,
+      categoria: editing.categoria ?? "",
+      paginas: Number(editing.paginas ?? 0),
       preco: Number(editing.preco ?? 0),
+      capa_url: editing.capa_url ?? null,
+      pdf_url: editing.pdf_url ?? null,
       publicado: !!editing.publicado,
-      capitulos: editing.capitulos ?? [],
     });
     if (!parsed.success) {
       const errs: Record<string, string> = {};
@@ -161,9 +133,9 @@ function AdminEbooks() {
       setErrors(errs);
       return toast.error("Corrija os campos destacados");
     }
-    if (parsed.data.publicado && parsed.data.capitulos.length === 0) {
-      setErrors({ capitulos: "Adicione ao menos um capítulo para publicar" });
-      return toast.error("Adicione capítulos antes de publicar");
+    if (!parsed.data.pdf_url) {
+      setErrors({ pdf_url: "Envie o PDF do eBook" });
+      return toast.error("Envie o PDF do eBook");
     }
     setSaving(true);
     const payload = parsed.data as any;
@@ -181,6 +153,7 @@ function AdminEbooks() {
   const remove = async (e: Ebook) => {
     if (!confirm(`Excluir "${e.titulo}"?`)) return;
     if (e.capa_url) await deleteCover(e.capa_url);
+    if (e.pdf_url) await deletePdf(e.pdf_url);
     const { error } = await supabase.from("ebooks").delete().eq("id", e.id);
     if (error) return toast.error(error.message);
     toast.success("Excluído");
@@ -188,9 +161,7 @@ function AdminEbooks() {
   };
 
   const togglePublish = async (e: Ebook) => {
-    if (!e.publicado && (!e.capitulos || e.capitulos.length === 0)) {
-      return toast.error("Adicione capítulos antes de publicar");
-    }
+    if (!e.publicado && !e.pdf_url) return toast.error("Envie o PDF antes de publicar");
     const { error } = await supabase
       .from("ebooks")
       .update({ publicado: !e.publicado })
@@ -200,17 +171,6 @@ function AdminEbooks() {
   };
 
   const err = (k: string) => errors[k];
-  const chapterErrors = useMemo(() => {
-    const map: Record<number, { titulo?: string; conteudo?: string }> = {};
-    Object.entries(errors).forEach(([k, v]) => {
-      const m = k.match(/^capitulos\.(\d+)\.(titulo|conteudo)$/);
-      if (m) {
-        const i = Number(m[1]);
-        map[i] = { ...map[i], [m[2]]: v };
-      }
-    });
-    return map;
-  }, [errors]);
 
   return (
     <div>
@@ -225,19 +185,20 @@ function AdminEbooks() {
           <Card key={e.id} className="p-4 flex items-center gap-3">
             <CoverImage
               value={e.capa_url}
-              className="size-14 rounded object-cover bg-muted shrink-0"
+              className="h-16 w-12 rounded object-cover bg-muted shrink-0"
               alt={e.titulo}
-              fallback={<div className="size-14 rounded bg-muted shrink-0" />}
+              fallback={<div className="h-16 w-12 rounded bg-muted shrink-0" />}
             />
             <div className="flex-1 min-w-0">
               <div className="font-semibold truncate">{e.titulo}</div>
-              <div className="text-xs text-muted-foreground truncate">{e.subtitulo}</div>
-              <div className="text-xs mt-1 flex items-center gap-2">
+              <div className="text-xs text-muted-foreground truncate">{e.descricao}</div>
+              <div className="text-xs mt-1 flex items-center gap-2 flex-wrap">
                 <Badge variant={e.publicado ? "default" : "secondary"}>
                   {e.publicado ? "Publicado" : "Rascunho"}
                 </Badge>
+                {e.categoria && <Badge variant="outline">{e.categoria}</Badge>}
                 <span>R$ {Number(e.preco ?? 0).toFixed(2)}</span>
-                <span className="text-muted-foreground">· {e.capitulos?.length ?? 0} cap.</span>
+                <span className="text-muted-foreground">· {e.paginas ?? 0} pág.</span>
               </div>
             </div>
             <Button size="sm" variant="outline" onClick={() => togglePublish(e)}>
@@ -265,165 +226,100 @@ function AdminEbooks() {
             <div className="space-y-4">
               <div className="grid sm:grid-cols-[140px_1fr] gap-4">
                 <div>
-                  <Label className="mb-2 block">Capa</Label>
-                  <div className="relative size-32 rounded-md border bg-muted overflow-hidden">
+                  <Label className="mb-2 block">Capa (1ª página)</Label>
+                  <div className="relative h-40 w-32 rounded-md border bg-muted overflow-hidden">
                     <CoverImage
                       value={editing.capa_url}
                       className="size-full object-cover"
                       fallback={
-                        <div className="size-full grid place-items-center text-xs text-muted-foreground">
-                          Sem capa
+                        <div className="size-full grid place-items-center text-xs text-muted-foreground text-center px-2">
+                          Extraída do PDF
                         </div>
                       }
                     />
                     {uploading && (
-                      <div className="absolute inset-0 bg-black/40 grid place-items-center">
+                      <div className="absolute inset-0 bg-black/50 grid place-items-center">
                         <Loader2 className="size-6 animate-spin text-white" />
                       </div>
                     )}
-                    {editing.capa_url && !uploading && (
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          await deleteCover(editing.capa_url);
-                          setEditing({ ...editing, capa_url: "" });
-                        }}
-                        className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1"
-                      >
-                        <X className="size-3" />
-                      </button>
-                    )}
                   </div>
                   <label className="mt-2 inline-flex items-center gap-1 text-xs text-primary cursor-pointer">
-                    <Upload className="size-3" /> Enviar imagem
+                    <Upload className="size-3" /> Enviar PDF
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="application/pdf"
                       className="hidden"
+                      disabled={uploading}
                       onChange={(e) => {
                         const f = e.target.files?.[0];
-                        if (f) onUpload(f);
+                        if (f) onUploadPdf(f);
                         e.currentTarget.value = "";
                       }}
                     />
                   </label>
+                  {editing.pdf_url && (
+                    <p className="mt-1 text-[11px] text-muted-foreground flex items-center gap-1">
+                      <FileText className="size-3" /> PDF enviado
+                    </p>
+                  )}
+                  {err("pdf_url") && (
+                    <p className="text-xs text-destructive mt-1">{err("pdf_url")}</p>
+                  )}
                 </div>
                 <div className="space-y-3">
-                  <Field label="Título *" error={err("titulo")}>
+                  <Field label="Nome *" error={err("titulo")}>
                     <Input
                       value={editing.titulo ?? ""}
                       onChange={(e) => setEditing({ ...editing, titulo: e.target.value })}
                       maxLength={200}
                     />
                   </Field>
-                  <Field label="Subtítulo" error={err("subtitulo")}>
-                    <Input
-                      value={editing.subtitulo ?? ""}
-                      onChange={(e) => setEditing({ ...editing, subtitulo: e.target.value })}
-                      maxLength={200}
+                  <Field label="Descrição" error={err("descricao")}>
+                    <Textarea
+                      rows={4}
+                      value={editing.descricao ?? ""}
+                      onChange={(e) => setEditing({ ...editing, descricao: e.target.value })}
+                      maxLength={2000}
                     />
                   </Field>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Autor" error={err("autor")}>
-                      <Input
-                        value={editing.autor ?? ""}
-                        onChange={(e) => setEditing({ ...editing, autor: e.target.value })}
-                        maxLength={120}
-                      />
-                    </Field>
-                    <Field label="Preço (R$)" error={err("preco")}>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={editing.preco ?? 0}
-                        onChange={(e) => setEditing({ ...editing, preco: Number(e.target.value) })}
-                      />
-                    </Field>
-                  </div>
                 </div>
               </div>
 
-              <Field label="Descrição" error={err("descricao")}>
-                <Textarea
-                  rows={3}
-                  value={editing.descricao ?? ""}
-                  onChange={(e) => setEditing({ ...editing, descricao: e.target.value })}
-                  maxLength={2000}
-                />
-              </Field>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label>Capítulos ({editing.capitulos?.length ?? 0})</Label>
-                  <Button type="button" size="sm" variant="outline" onClick={addChapter}>
-                    <Plus className="size-3 mr-1" /> Capítulo
-                  </Button>
-                </div>
-                {err("capitulos") && (
-                  <p className="text-xs text-destructive mb-2">{err("capitulos")}</p>
-                )}
-                <div className="space-y-3">
-                  {(editing.capitulos ?? []).map((c, i) => (
-                    <Card key={i} className="p-3 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono text-muted-foreground w-6">
-                          {i + 1}.
-                        </span>
-                        <Input
-                          placeholder="Título do capítulo"
-                          value={c.titulo}
-                          onChange={(e) => updateChapter(i, { titulo: e.target.value })}
-                          maxLength={200}
-                        />
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => moveChapter(i, -1)}
-                          disabled={i === 0}
-                        >
-                          <ArrowUp className="size-4" />
-                        </Button>
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => moveChapter(i, 1)}
-                          disabled={i === (editing.capitulos?.length ?? 0) - 1}
-                        >
-                          <ArrowDown className="size-4" />
-                        </Button>
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => removeChapter(i)}
-                        >
-                          <Trash2 className="size-4 text-destructive" />
-                        </Button>
-                      </div>
-                      {chapterErrors[i]?.titulo && (
-                        <p className="text-xs text-destructive">{chapterErrors[i].titulo}</p>
-                      )}
-                      <Textarea
-                        rows={5}
-                        placeholder="Conteúdo do capítulo (texto ou markdown)"
-                        value={c.conteudo}
-                        onChange={(e) => updateChapter(i, { conteudo: e.target.value })}
-                        maxLength={50000}
-                      />
-                      {chapterErrors[i]?.conteudo && (
-                        <p className="text-xs text-destructive">{chapterErrors[i].conteudo}</p>
-                      )}
-                    </Card>
-                  ))}
-                  {(editing.capitulos?.length ?? 0) === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-md">
-                      Nenhum capítulo. Clique em "Capítulo" para adicionar.
-                    </p>
-                  )}
-                </div>
+              <div className="grid sm:grid-cols-3 gap-3">
+                <Field label="Categoria *" error={err("categoria")}>
+                  <Select
+                    value={editing.categoria ?? ""}
+                    onValueChange={(v) => setEditing({ ...editing, categoria: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIAS.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Páginas *" error={err("paginas")}>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={editing.paginas ?? 0}
+                    onChange={(e) => setEditing({ ...editing, paginas: Number(e.target.value) })}
+                  />
+                </Field>
+                <Field label="Preço (R$)" error={err("preco")}>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={editing.preco ?? 0}
+                    onChange={(e) => setEditing({ ...editing, preco: Number(e.target.value) })}
+                  />
+                </Field>
               </div>
 
               <div className="flex items-center gap-3 p-3 border rounded-md">
