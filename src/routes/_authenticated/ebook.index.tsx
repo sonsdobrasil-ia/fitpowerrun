@@ -108,6 +108,48 @@ function Ebook() {
         <BookOpen className="size-8 text-primary mt-1" />
       </header>
 
+      {biblioteca.length > 0 && (
+        <section className="mt-6">
+          <h2 className="font-bold text-lg mb-3">Sua biblioteca</h2>
+          <ul className="space-y-3">
+            {biblioteca.map((b) => (
+              <li key={b.id}>
+                <Link
+                  to="/ebook/$id"
+                  params={{ id: b.id }}
+                  className="flex gap-3 rounded-2xl bg-card border p-3 shadow-soft"
+                >
+                  <CoverImage
+                    value={b.capa_url}
+                    alt={b.titulo}
+                    className="h-24 w-18 rounded-lg object-cover bg-muted shrink-0"
+                    fallback={<div className="h-24 w-16 rounded-lg bg-muted shrink-0" />}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold truncate">{b.titulo}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{b.descricao}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      {b.categoria} · {b.paginas ?? 0} páginas
+                    </p>
+                    <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-energy"
+                        style={{ width: `${Math.round(b.percentual)}%` }}
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      {Math.round(b.percentual)}% lido
+                    </p>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+
+
       <div className="mt-5 rounded-2xl bg-card border p-4 shadow-soft">
         <div className="flex justify-between text-sm">
           <span className="font-semibold">Progresso de leitura</span>
