@@ -6,7 +6,7 @@ import jsPDF from "jspdf";
 import { ChevronDown, Download, BookOpen, Check } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/ebook")({
+export const Route = createFileRoute("/_authenticated/ebook/")({
   component: Ebook,
 });
 
