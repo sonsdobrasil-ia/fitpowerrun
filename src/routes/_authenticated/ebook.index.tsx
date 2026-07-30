@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CAPITULOS } from "@/lib/ebook";
 import { supabase } from "@/integrations/supabase/client";
+import { CoverImage } from "@/components/CoverImage";
 import jsPDF from "jspdf";
 import { ChevronDown, Download, BookOpen, Check } from "lucide-react";
 import { toast } from "sonner";
@@ -10,9 +11,20 @@ export const Route = createFileRoute("/_authenticated/ebook/")({
   component: Ebook,
 });
 
+type Biblioteca = {
+  id: string;
+  titulo: string;
+  descricao: string | null;
+  categoria: string | null;
+  paginas: number | null;
+  capa_url: string | null;
+  percentual: number;
+};
+
 function Ebook() {
   const [open, setOpen] = useState<string | null>(null);
   const [lidos, setLidos] = useState<Set<string>>(new Set());
+  const [biblioteca, setBiblioteca] = useState<Biblioteca[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -20,8 +32,29 @@ function Ebook() {
       if (!u.user) return;
       const { data } = await supabase.from("ebook_progress").select("capitulo").eq("user_id", u.user.id).eq("lido", true);
       setLidos(new Set((data ?? []).map((r) => r.capitulo)));
+
+      const [{ data: books }, { data: progresso }] = await Promise.all([
+        supabase
+          .from("ebooks")
+          .select("id, titulo, descricao, categoria, paginas, capa_url, pdf_url")
+          .eq("publicado", true)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("ebook_reading_progress")
+          .select("ebook_id, percentual")
+          .eq("user_id", u.user.id),
+      ]);
+      const map = new Map(
+        ((progresso as any[]) ?? []).map((p) => [p.ebook_id, Number(p.percentual ?? 0)]),
+      );
+      setBiblioteca(
+        ((books as any[]) ?? [])
+          .filter((b) => b.pdf_url)
+          .map((b) => ({ ...b, percentual: map.get(b.id) ?? 0 })),
+      );
     })();
   }, []);
+
 
   async function marcarLido(capId: string) {
     const { data: u } = await supabase.auth.getUser();
