@@ -87,7 +87,7 @@ function SalesPage() {
           fallback={<div className="w-full aspect-[3/4] rounded-2xl bg-muted" />}
         />
 
-        <div>
+        <div className="min-w-0">
           {book.categoria && (
             <span className="inline-flex items-center gap-1 rounded-full bg-secondary/15 text-secondary text-xs font-semibold px-3 py-1">
               <BookOpen className="size-3" /> {book.categoria}
