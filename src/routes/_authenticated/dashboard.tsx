@@ -93,8 +93,8 @@ function Dashboard() {
           <BookOpen className="size-5" />
         </div>
         <div className="flex-1">
-          <p className="font-bold">eBook · Do Sofá aos 5km</p>
-          <p className="text-xs text-muted-foreground">8 capítulos para você não desistir</p>
+          <p className="font-bold">Biblioteca de eBooks</p>
+          <p className="text-xs text-muted-foreground">Leia e acompanhe seu progresso</p>
         </div>
         <span className="text-muted-foreground">›</span>
       </Link>
