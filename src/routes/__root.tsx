@@ -11,6 +11,7 @@ import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { supabase } from "@/integrations/supabase/client";
+import { AppHeader } from "@/components/AppHeader";
 
 function NotFoundComponent() {
   return (
@@ -106,6 +107,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AppHeader />
       <Outlet />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
