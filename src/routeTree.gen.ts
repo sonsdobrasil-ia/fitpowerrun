@@ -13,6 +13,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EbooksIdRouteImport } from './routes/ebooks.$id'
 import { Route as AuthenticatedWorkoutsRouteImport } from './routes/_authenticated/workouts'
 import { Route as AuthenticatedProgressRouteImport } from './routes/_authenticated/progress'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -44,6 +45,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EbooksIdRoute = EbooksIdRouteImport.update({
+  id: '/ebooks/$id',
+  path: '/ebooks/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedWorkoutsRoute = AuthenticatedWorkoutsRouteImport.update({
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/progress': typeof AuthenticatedProgressRoute
   '/workouts': typeof AuthenticatedWorkoutsRoute
+  '/ebooks/$id': typeof EbooksIdRoute
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/progress': typeof AuthenticatedProgressRoute
   '/workouts': typeof AuthenticatedWorkoutsRoute
+  '/ebooks/$id': typeof EbooksIdRoute
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/progress': typeof AuthenticatedProgressRoute
   '/_authenticated/workouts': typeof AuthenticatedWorkoutsRoute
+  '/ebooks/$id': typeof EbooksIdRoute
   '/_authenticated/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/_authenticated/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/progress'
     | '/workouts'
+    | '/ebooks/$id'
     | '/admin/billing'
     | '/admin/ebooks'
     | '/admin/users'
@@ -198,6 +208,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/progress'
     | '/workouts'
+    | '/ebooks/$id'
     | '/admin/billing'
     | '/admin/ebooks'
     | '/admin/users'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/progress'
     | '/_authenticated/workouts'
+    | '/ebooks/$id'
     | '/_authenticated/admin/billing'
     | '/_authenticated/admin/ebooks'
     | '/_authenticated/admin/users'
@@ -231,6 +243,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  EbooksIdRoute: typeof EbooksIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -261,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ebooks/$id': {
+      id: '/ebooks/$id'
+      path: '/ebooks/$id'
+      fullPath: '/ebooks/$id'
+      preLoaderRoute: typeof EbooksIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/workouts': {
@@ -409,6 +429,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  EbooksIdRoute: EbooksIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
