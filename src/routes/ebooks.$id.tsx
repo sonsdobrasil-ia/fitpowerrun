@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CoverImage } from "@/components/CoverImage";
-import { formatPreco, type ShelfBook } from "@/routes/index";
+import { formatPreco, type ShelfBook } from "@/lib/shelf";
 import { ArrowLeft, Check, ShoppingCart, BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/ebooks/$id")({
