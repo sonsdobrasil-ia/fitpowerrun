@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CoverImage } from "@/components/CoverImage";
+import { formatPreco, type ShelfBook } from "@/lib/shelf";
 import { ChevronRight, Zap, Timer, Trophy, BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/")({
