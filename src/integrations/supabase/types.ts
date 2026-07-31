@@ -14,30 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      ebook_progress: {
-        Row: {
-          capitulo: string
-          data: string
-          id: string
-          lido: boolean | null
-          user_id: string
-        }
-        Insert: {
-          capitulo: string
-          data?: string
-          id?: string
-          lido?: boolean | null
-          user_id: string
-        }
-        Update: {
-          capitulo?: string
-          data?: string
-          id?: string
-          lido?: boolean | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       ebook_reading_progress: {
         Row: {
           created_at: string
@@ -83,7 +59,6 @@ export type Database = {
         Row: {
           autor: string | null
           capa_url: string | null
-          capitulos: Json
           categoria: string | null
           created_at: string
           descricao: string | null
@@ -99,7 +74,6 @@ export type Database = {
         Insert: {
           autor?: string | null
           capa_url?: string | null
-          capitulos?: Json
           categoria?: string | null
           created_at?: string
           descricao?: string | null
@@ -115,7 +89,6 @@ export type Database = {
         Update: {
           autor?: string | null
           capa_url?: string | null
-          capitulos?: Json
           categoria?: string | null
           created_at?: string
           descricao?: string | null
