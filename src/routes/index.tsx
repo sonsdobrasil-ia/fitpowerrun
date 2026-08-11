@@ -2,33 +2,31 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CoverImage } from "@/components/CoverImage";
-import { formatPreco, type ShelfBook } from "@/lib/shelf";
-import { ChevronRight, Zap, Timer, Trophy, BookOpen } from "lucide-react";
+import { type ShelfBook } from "@/lib/shelf";
+import { PLANOS, BENEFICIOS } from "@/lib/plans";
+import { ChevronRight, Zap, Timer, Trophy, BookOpen, Check } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   ssr: false,
   component: Index,
   head: () => ({
     meta: [
-      { title: "FitPower — eBooks de corrida e treino para iniciantes" },
+      { title: "FitPower — assinatura de eBooks e treinos de corrida" },
       {
         name: "description",
         content:
-          "Estante FitPower: eBooks de corrida, treino e nutrição para sair do sofá e cruzar os 5km em 30 dias.",
+          "Assine o FitPower por R$ 9,90/mês e libere todos os eBooks de corrida, treino e nutrição, o plano de 4 semanas e o certificado de 5km.",
       },
-      { property: "og:title", content: "FitPower — eBooks de corrida e treino" },
+      { property: "og:title", content: "FitPower — assinatura de eBooks e treinos de corrida" },
       {
         property: "og:description",
-        content: "Conheça a estante de eBooks FitPower e comece a correr em 30 dias.",
+        content: "Um plano, biblioteca completa de eBooks e o método que leva do sofá aos 5km.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
 });
-
-
-
 
 function Index() {
   const [books, setBooks] = useState<ShelfBook[]>([]);
@@ -50,12 +48,15 @@ function Index() {
     <div className="bg-background">
       <main className="px-5 py-10 max-w-5xl mx-auto w-full">
         <section>
-          <h1 className="text-4xl font-bold leading-tight max-w-xl">
+          <span className="inline-flex items-center rounded-full bg-accent/20 text-accent-foreground text-xs font-semibold px-3 py-1">
+            Assinatura única · tudo liberado
+          </span>
+          <h1 className="text-4xl font-bold leading-tight max-w-xl mt-4">
             Do <span className="text-primary">sofá aos 5km</span> em 30 dias.
           </h1>
           <p className="mt-4 text-muted-foreground text-lg max-w-xl">
-            O método FitPower leva você do zero à linha de chegada, com 3 treinos por semana e um
-            plano que respeita o seu corpo.
+            Uma assinatura libera a biblioteca completa de eBooks FitPower, o plano de 4 semanas e o
+            timer guiado. Sem comprar título por título.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3 max-w-3xl">
@@ -66,17 +67,16 @@ function Index() {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              to="/auth"
-              search={{ mode: "signup" }}
+              to="/planos"
               className="inline-flex items-center gap-2 rounded-2xl bg-primary text-primary-foreground font-bold px-6 py-3.5 shadow-glow active:scale-[0.98] transition"
             >
-              Começar agora <ChevronRight className="size-5" />
+              Assinar por R$ 9,90/mês <ChevronRight className="size-5" />
             </Link>
             <a
               href="#estante"
               className="inline-flex items-center rounded-2xl border-2 border-border font-semibold px-6 py-3.5"
             >
-              Ver a estante
+              Ver a biblioteca
             </a>
           </div>
         </section>
@@ -84,10 +84,11 @@ function Index() {
         <section id="estante" className="mt-16">
           <div className="flex items-center gap-3">
             <BookOpen className="size-6 text-primary" />
-            <h2 className="text-2xl font-bold">Estante de eBooks</h2>
+            <h2 className="text-2xl font-bold">Biblioteca incluída no plano</h2>
           </div>
           <p className="text-muted-foreground mt-1">
-            Guias práticos para correr, treinar e comer melhor.
+            Todos estes títulos ficam liberados assim que você assina — e novos entram sem custo
+            extra.
           </p>
 
           {loading ? (
@@ -118,14 +119,47 @@ function Index() {
                     <p className="text-xs text-muted-foreground mt-1">
                       {b.categoria} · {b.paginas ?? 0} páginas
                     </p>
-                    <p className="mt-2 font-display font-bold text-primary">
-                      {formatPreco(b.preco)}
-                    </p>
+                    <p className="mt-2 text-sm font-semibold text-secondary">Incluído no plano</p>
                   </Link>
                 </li>
               ))}
             </ul>
           )}
+        </section>
+
+        <section className="mt-16 rounded-2xl border bg-card p-6 sm:p-8 shadow-soft">
+          <h2 className="text-2xl font-bold">Um plano, dois jeitos de pagar</h2>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            {PLANOS.map((p) => (
+              <div
+                key={p.id}
+                className={`rounded-2xl border p-5 ${p.destaque ? "border-primary" : ""}`}
+              >
+                <p className="font-bold">{p.nome}</p>
+                <p className="mt-1">
+                  <span className="text-3xl font-display font-bold text-primary">
+                    {p.precoLabel}
+                  </span>
+                  <span className="text-muted-foreground">{p.periodo}</span>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">{p.detalhe}</p>
+              </div>
+            ))}
+          </div>
+          <ul className="mt-5 grid gap-2 sm:grid-cols-2">
+            {BENEFICIOS.map((b) => (
+              <li key={b} className="flex gap-2 text-sm">
+                <Check className="size-4 text-secondary mt-0.5 shrink-0" />
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+          <Link
+            to="/planos"
+            className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-primary text-primary-foreground font-bold px-6 py-3.5"
+          >
+            Ver planos <ChevronRight className="size-5" />
+          </Link>
         </section>
       </main>
     </div>
