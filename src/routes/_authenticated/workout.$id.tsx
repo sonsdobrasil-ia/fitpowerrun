@@ -43,6 +43,8 @@ function WorkoutPage() {
   const { id } = Route.useParams();
   const workout = PLANO.find((w) => w.id === id)!;
   const navigate = useNavigate();
+  const { hasAccess, loading: loadingAccess } = useHasAccess();
+
 
   const [blocoIdx, setBlocoIdx] = useState(0);
   const [blocoLeft, setBlocoLeft] = useState(workout.blocos[0].duracao);
