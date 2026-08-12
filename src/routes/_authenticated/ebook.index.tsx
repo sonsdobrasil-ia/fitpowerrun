@@ -38,7 +38,9 @@ type Biblioteca = {
 };
 
 function Ebook() {
+  const { hasAccess, loading: loadingAccess } = useHasAccess();
   const [biblioteca, setBiblioteca] = useState<Biblioteca[]>([]);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
