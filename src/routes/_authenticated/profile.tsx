@@ -151,7 +151,47 @@ function ProfilePage() {
         <button onClick={pedirNotificacoes} className="mt-2 text-sm text-primary font-semibold underline">Ativar notificações</button>
       </Section>
 
+      <Section title="Minha assinatura" icon={Crown}>
+        {sub.loading ? (
+          <p className="text-sm text-muted-foreground">Carregando...</p>
+        ) : sub.active ? (
+          <div className="space-y-1">
+            <p className="font-semibold capitalize">Plano {sub.plano ?? "FitPower"}</p>
+            <p className="text-sm text-secondary font-semibold">Assinatura ativa</p>
+            {sub.currentPeriodEnd && (
+              <p className="text-xs text-muted-foreground">
+                Renova em {new Date(sub.currentPeriodEnd).toLocaleDateString("pt-BR")}
+              </p>
+            )}
+            <button
+              onClick={() =>
+                toast.info("Gerenciamento de assinatura em breve", {
+                  description: "Ative a integração de pagamentos para abrir o portal do cliente.",
+                })
+              }
+              className="mt-2 text-sm text-primary font-semibold underline"
+            >
+              Gerenciar assinatura
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              Você ainda não tem uma assinatura ativa. Assine para liberar todos os eBooks, treinos e
+              o certificado de 5km.
+            </p>
+            <button
+              onClick={() => navigate({ to: "/planos" })}
+              className="w-full rounded-2xl bg-primary text-primary-foreground font-bold py-3"
+            >
+              Ver planos · a partir de R$ 9,90
+            </button>
+          </div>
+        )}
+      </Section>
+
       <Section title="Aparência">
+
         <button onClick={toggleTema} className="flex items-center justify-between w-full">
           <span className="flex items-center gap-2 font-semibold">{tema === "dark" ? <Moon className="size-4" /> : <Sun className="size-4" />} Modo {tema === "dark" ? "escuro" : "claro"}</span>
           <span className="text-sm text-muted-foreground">Toque para alternar</span>
