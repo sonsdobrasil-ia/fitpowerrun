@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { PLANO } from "@/lib/plan";
 import jsPDF from "jspdf";
 import { Award, Flame, Clock, Trophy, Download } from "lucide-react";
+import { Paywall, useHasAccess } from "@/components/SubscriptionGate";
+
 
 type Log = { id: string; semana: number; numero_treino: number; duracao: number; esforco: number | null; data: string; observacao: string | null };
 
@@ -12,7 +14,9 @@ export const Route = createFileRoute("/_authenticated/progress")({
 });
 
 function ProgressPage() {
+  const { hasAccess, loading: loadingAccess } = useHasAccess();
   const [logs, setLogs] = useState<Log[]>([]);
+
   const [nome, setNome] = useState("");
 
   useEffect(() => {
@@ -72,9 +76,22 @@ function ProgressPage() {
     doc.save("certificado-fitpower.pdf");
   }
 
+  if (!loadingAccess && !hasAccess) {
+    return (
+      <div className="px-5 pt-8 pb-4 max-w-xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Progresso</h1>
+        <Paywall
+          titulo="Progresso e certificado no plano"
+          descricao="Assine o FitPower para acompanhar histórico, gráficos, sequência e emitir seu certificado de 5km."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="px-5 pt-8 pb-4 max-w-xl mx-auto">
       <h1 className="text-3xl font-bold">Progresso</h1>
+
 
       {/* Cards */}
       <div className="grid grid-cols-3 gap-3 mt-5">

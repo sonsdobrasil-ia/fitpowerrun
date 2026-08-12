@@ -5,6 +5,9 @@ import { resolvePdfUrl } from "@/lib/ebook-files";
 import { loadPdf, renderPageToCanvas } from "@/lib/pdf";
 import { ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Paywall, useHasAccess } from "@/components/SubscriptionGate";
+import { previewPages } from "@/lib/plans";
+
 
 export const Route = createFileRoute("/_authenticated/ebook/$id")({
   component: Reader,
@@ -19,7 +22,9 @@ type EbookRow = {
 
 function Reader() {
   const { id } = Route.useParams();
+  const { hasAccess, loading: loadingAccess } = useHasAccess();
   const [ebook, setEbook] = useState<EbookRow | null>(null);
+
   const [pdf, setPdf] = useState<any>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -124,10 +129,21 @@ function Reader() {
     return () => clearTimeout(t);
   }, [page, maxPage, total, pdf, ebook]);
 
+  const limitePreview = previewPages(total);
+  const limite = hasAccess ? total : Math.min(limitePreview, total || limitePreview);
+  const bloqueado = !loadingAccess && !hasAccess && total > 0 && page >= limite;
+
+  // Não deixa a prévia abrir além do limite (progresso salvo anterior)
+  useEffect(() => {
+    if (loadingAccess || hasAccess || !total) return;
+    setPage((p) => (p > limite ? limite : p));
+  }, [loadingAccess, hasAccess, total, limite]);
+
+
   const go = async (dir: "next" | "prev") => {
     if (flip) return;
     const target = dir === "next" ? page + 1 : page - 1;
-    if (target < 1 || target > total) return;
+    if (target < 1 || target > limite) return;
     const from = current ?? (await renderPage(page));
     if (from) setFlip({ dir, img: dir === "next" ? from : (await renderPage(target)) || from });
     setPage(target);
@@ -138,6 +154,7 @@ function Reader() {
   // Swipe
   const touchX = useRef(0);
   const percent = total ? Math.round((maxPage / total) * 100) : 0;
+
 
   return (
     <div className="px-4 pt-6 pb-4 max-w-3xl mx-auto">
@@ -194,6 +211,21 @@ function Reader() {
         )}
       </div>
 
+      {!loadingAccess && !hasAccess && total > 0 && (
+        <div className="mt-4">
+          {bloqueado ? (
+            <Paywall
+              titulo="Fim da prévia gratuita"
+              descricao={`Você leu as ${limite} páginas liberadas. Assine o FitPower para continuar a leitura completa e liberar toda a biblioteca.`}
+            />
+          ) : (
+            <p className="text-xs text-center text-muted-foreground">
+              Prévia gratuita · {limite} de {total} páginas liberadas
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="mt-4 flex items-center justify-between gap-3">
         <button
           onClick={() => go("prev")}
@@ -204,9 +236,10 @@ function Reader() {
         </button>
         <button
           onClick={() => go("next")}
-          disabled={page >= total}
+          disabled={page >= limite}
           className="flex-1 flex items-center justify-center gap-1 rounded-2xl bg-primary text-primary-foreground font-bold py-3 disabled:opacity-40"
         >
+
           Próxima <ChevronRight className="size-4" />
         </button>
       </div>

@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Play, Pause, Square, ChevronLeft, Check } from "lucide-react";
 import { fireConfetti } from "@/lib/confetti";
 import { toast } from "sonner";
+import { Paywall, useHasAccess } from "@/components/SubscriptionGate";
+
 
 export const Route = createFileRoute("/_authenticated/workout/$id")({
   component: WorkoutPage,
@@ -43,6 +45,8 @@ function WorkoutPage() {
   const { id } = Route.useParams();
   const workout = PLANO.find((w) => w.id === id)!;
   const navigate = useNavigate();
+  const { hasAccess, loading: loadingAccess } = useHasAccess();
+
 
   const [blocoIdx, setBlocoIdx] = useState(0);
   const [blocoLeft, setBlocoLeft] = useState(workout.blocos[0].duracao);
@@ -92,7 +96,24 @@ function WorkoutPage() {
     }
   }
 
+  if (!loadingAccess && !hasAccess) {
+    return (
+      <div className="px-5 pt-8 pb-6 max-w-xl mx-auto">
+        <Link to="/workouts" className="flex items-center gap-1 text-muted-foreground">
+          <ChevronLeft className="size-5" /> Voltar
+        </Link>
+        <div className="mt-6">
+          <Paywall
+            titulo="Treino disponível no plano"
+            descricao="Assine o FitPower para usar o timer guiado e registrar seus treinos."
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
+
     <div className="min-h-screen flex flex-col">
       <header className="px-5 pt-6 flex items-center justify-between">
         <Link to="/workouts" className="flex items-center gap-1 text-muted-foreground"><ChevronLeft className="size-5" /> Voltar</Link>

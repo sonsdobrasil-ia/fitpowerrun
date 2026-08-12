@@ -4,13 +4,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { PLANO, FRASES, workoutKey } from "@/lib/plan";
 import { Play, BookOpen, Flame, Sparkles } from "lucide-react";
+import { useHasAccess } from "@/components/SubscriptionGate";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
 function Dashboard() {
+  const { hasAccess, loading: loadingAccess } = useHasAccess();
   const [nome, setNome] = useState("atleta");
+
   const [completedKeys, setCompletedKeys] = useState<Set<string>>(new Set());
   const [onboardingDone, setOnboardingDone] = useState(true);
   const [frase] = useState(() => FRASES[Math.floor(Math.random() * FRASES.length)]);
@@ -45,11 +49,18 @@ function Dashboard() {
         <h1 className="text-3xl font-bold">{nome}! 👋</h1>
       </div>
 
+      {!hasAccess && !loadingAccess && (
+        <Link to="/planos" className="mt-5 block rounded-2xl bg-gradient-primary text-primary-foreground p-4 font-semibold shadow-glow">
+          🔓 Assine e libere todos os eBooks e treinos · R$ 9,90/mês →
+        </Link>
+      )}
+
       {!onboardingDone && (
         <Link to="/onboarding" className="mt-5 block rounded-2xl bg-accent text-accent-foreground p-4 font-semibold shadow-soft">
           ✨ Conheça o método FitPower (1 min) →
         </Link>
       )}
+
 
       {/* Progresso geral */}
       <div className="mt-6 rounded-2xl bg-card border p-5 shadow-soft">

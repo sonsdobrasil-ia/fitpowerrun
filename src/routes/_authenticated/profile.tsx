@@ -2,7 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
-import { Bell, Download, LogOut, Moon, Sun, User as UserIcon, Save } from "lucide-react";
+import { Bell, Download, LogOut, Moon, Sun, User as UserIcon, Save, Crown } from "lucide-react";
+import { useSubscription } from "@/lib/use-subscription";
+
 import { toast } from "sonner";
 import { setTheme, getTheme } from "@/lib/theme";
 
@@ -14,6 +16,8 @@ export const Route = createFileRoute("/_authenticated/profile")({
 
 function ProfilePage() {
   const navigate = useNavigate();
+  const sub = useSubscription();
+
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [peso, setPeso] = useState<string>("");
@@ -151,7 +155,47 @@ function ProfilePage() {
         <button onClick={pedirNotificacoes} className="mt-2 text-sm text-primary font-semibold underline">Ativar notificações</button>
       </Section>
 
+      <Section title="Minha assinatura" icon={Crown}>
+        {sub.loading ? (
+          <p className="text-sm text-muted-foreground">Carregando...</p>
+        ) : sub.active ? (
+          <div className="space-y-1">
+            <p className="font-semibold capitalize">Plano {sub.plano ?? "FitPower"}</p>
+            <p className="text-sm text-secondary font-semibold">Assinatura ativa</p>
+            {sub.currentPeriodEnd && (
+              <p className="text-xs text-muted-foreground">
+                Renova em {new Date(sub.currentPeriodEnd).toLocaleDateString("pt-BR")}
+              </p>
+            )}
+            <button
+              onClick={() =>
+                toast.info("Gerenciamento de assinatura em breve", {
+                  description: "Ative a integração de pagamentos para abrir o portal do cliente.",
+                })
+              }
+              className="mt-2 text-sm text-primary font-semibold underline"
+            >
+              Gerenciar assinatura
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              Você ainda não tem uma assinatura ativa. Assine para liberar todos os eBooks, treinos e
+              o certificado de 5km.
+            </p>
+            <button
+              onClick={() => navigate({ to: "/planos" })}
+              className="w-full rounded-2xl bg-primary text-primary-foreground font-bold py-3"
+            >
+              Ver planos · a partir de R$ 9,90
+            </button>
+          </div>
+        )}
+      </Section>
+
       <Section title="Aparência">
+
         <button onClick={toggleTema} className="flex items-center justify-between w-full">
           <span className="flex items-center gap-2 font-semibold">{tema === "dark" ? <Moon className="size-4" /> : <Sun className="size-4" />} Modo {tema === "dark" ? "escuro" : "claro"}</span>
           <span className="text-sm text-muted-foreground">Toque para alternar</span>
