@@ -2,7 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
-import { Bell, Download, LogOut, Moon, Sun, User as UserIcon, Save } from "lucide-react";
+import { Bell, Download, LogOut, Moon, Sun, User as UserIcon, Save, Crown } from "lucide-react";
+import { useSubscription } from "@/lib/use-subscription";
+
 import { toast } from "sonner";
 import { setTheme, getTheme } from "@/lib/theme";
 
