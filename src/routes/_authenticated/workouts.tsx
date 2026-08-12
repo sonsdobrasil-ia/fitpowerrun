@@ -26,12 +26,26 @@ function Workouts() {
   // Agrupar por semana
   const semanas = [1, 2, 3, 4].map((s) => PLANO.filter((w) => w.semana === s));
 
+  if (!loadingAccess && !hasAccess) {
+    return (
+      <div className="px-5 pt-8 pb-4 max-w-xl mx-auto">
+        <h1 className="text-3xl font-bold">Treinos</h1>
+        <p className="text-muted-foreground mt-1 mb-6">Plano FitPower · 4 semanas, 12 treinos.</p>
+        <Paywall
+          titulo="Treinos liberados no plano"
+          descricao="Assine o FitPower para acessar os 12 treinos, o timer guiado e o registro de esforço."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="px-5 pt-8 pb-4 max-w-xl mx-auto">
       <h1 className="text-3xl font-bold">Treinos</h1>
       <p className="text-muted-foreground mt-1">Plano FitPower · 4 semanas, 12 treinos.</p>
 
       {semanas.map((treinos, idx) => {
+
         const semana = idx + 1;
         return (
           <section key={semana} className="mt-7">
