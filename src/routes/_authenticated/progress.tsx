@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { PLANO } from "@/lib/plan";
 import jsPDF from "jspdf";
 import { Award, Flame, Clock, Trophy, Download } from "lucide-react";
+import { Paywall, useHasAccess } from "@/components/SubscriptionGate";
+
 
 type Log = { id: string; semana: number; numero_treino: number; duracao: number; esforco: number | null; data: string; observacao: string | null };
 
