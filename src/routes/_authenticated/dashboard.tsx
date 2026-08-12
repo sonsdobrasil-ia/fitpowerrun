@@ -12,7 +12,9 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
+  const { hasAccess, loading: loadingAccess } = useHasAccess();
   const [nome, setNome] = useState("atleta");
+
   const [completedKeys, setCompletedKeys] = useState<Set<string>>(new Set());
   const [onboardingDone, setOnboardingDone] = useState(true);
   const [frase] = useState(() => FRASES[Math.floor(Math.random() * FRASES.length)]);
