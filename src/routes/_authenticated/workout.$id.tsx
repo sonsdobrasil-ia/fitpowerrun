@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Play, Pause, Square, ChevronLeft, Check } from "lucide-react";
 import { fireConfetti } from "@/lib/confetti";
 import { toast } from "sonner";
+import { Paywall, useHasAccess } from "@/components/SubscriptionGate";
+
 
 export const Route = createFileRoute("/_authenticated/workout/$id")({
   component: WorkoutPage,
