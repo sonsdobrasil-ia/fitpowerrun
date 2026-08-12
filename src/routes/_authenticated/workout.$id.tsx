@@ -92,7 +92,24 @@ function WorkoutPage() {
     }
   }
 
+  if (!loadingAccess && !hasAccess) {
+    return (
+      <div className="px-5 pt-8 pb-6 max-w-xl mx-auto">
+        <Link to="/workouts" className="flex items-center gap-1 text-muted-foreground">
+          <ChevronLeft className="size-5" /> Voltar
+        </Link>
+        <div className="mt-6">
+          <Paywall
+            titulo="Treino disponível no plano"
+            descricao="Assine o FitPower para usar o timer guiado e registrar seus treinos."
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
+
     <div className="min-h-screen flex flex-col">
       <header className="px-5 pt-6 flex items-center justify-between">
         <Link to="/workouts" className="flex items-center gap-1 text-muted-foreground"><ChevronLeft className="size-5" /> Voltar</Link>
