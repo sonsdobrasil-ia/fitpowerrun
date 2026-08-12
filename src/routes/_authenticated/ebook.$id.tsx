@@ -22,7 +22,9 @@ type EbookRow = {
 
 function Reader() {
   const { id } = Route.useParams();
+  const { hasAccess, loading: loadingAccess } = useHasAccess();
   const [ebook, setEbook] = useState<EbookRow | null>(null);
+
   const [pdf, setPdf] = useState<any>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
