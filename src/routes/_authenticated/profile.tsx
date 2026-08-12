@@ -16,6 +16,8 @@ export const Route = createFileRoute("/_authenticated/profile")({
 
 function ProfilePage() {
   const navigate = useNavigate();
+  const sub = useSubscription();
+
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [peso, setPeso] = useState<string>("");
