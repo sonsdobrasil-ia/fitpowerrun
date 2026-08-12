@@ -14,7 +14,9 @@ export const Route = createFileRoute("/_authenticated/progress")({
 });
 
 function ProgressPage() {
+  const { hasAccess, loading: loadingAccess } = useHasAccess();
   const [logs, setLogs] = useState<Log[]>([]);
+
   const [nome, setNome] = useState("");
 
   useEffect(() => {
