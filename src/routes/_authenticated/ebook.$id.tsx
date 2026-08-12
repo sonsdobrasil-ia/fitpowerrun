@@ -127,10 +127,14 @@ function Reader() {
     return () => clearTimeout(t);
   }, [page, maxPage, total, pdf, ebook]);
 
+  const limitePreview = previewPages(total);
+  const limite = hasAccess ? total : Math.min(limitePreview, total || limitePreview);
+  const bloqueado = !loadingAccess && !hasAccess && total > 0 && page >= limite;
+
   const go = async (dir: "next" | "prev") => {
     if (flip) return;
     const target = dir === "next" ? page + 1 : page - 1;
-    if (target < 1 || target > total) return;
+    if (target < 1 || target > limite) return;
     const from = current ?? (await renderPage(page));
     if (from) setFlip({ dir, img: dir === "next" ? from : (await renderPage(target)) || from });
     setPage(target);
@@ -141,6 +145,7 @@ function Reader() {
   // Swipe
   const touchX = useRef(0);
   const percent = total ? Math.round((maxPage / total) * 100) : 0;
+
 
   return (
     <div className="px-4 pt-6 pb-4 max-w-3xl mx-auto">
