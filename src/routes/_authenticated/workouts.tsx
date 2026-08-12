@@ -3,13 +3,16 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PLANO, workoutKey } from "@/lib/plan";
 import { Lock, Check, Play } from "lucide-react";
+import { Paywall, useHasAccess } from "@/components/SubscriptionGate";
 
 export const Route = createFileRoute("/_authenticated/workouts")({
   component: Workouts,
 });
 
 function Workouts() {
+  const { hasAccess, loading: loadingAccess } = useHasAccess();
   const [completed, setCompleted] = useState<Set<string>>(new Set());
+
 
   useEffect(() => {
     (async () => {
