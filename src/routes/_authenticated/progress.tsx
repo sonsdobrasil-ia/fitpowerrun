@@ -72,9 +72,22 @@ function ProgressPage() {
     doc.save("certificado-fitpower.pdf");
   }
 
+  if (!loadingAccess && !hasAccess) {
+    return (
+      <div className="px-5 pt-8 pb-4 max-w-xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Progresso</h1>
+        <Paywall
+          titulo="Progresso e certificado no plano"
+          descricao="Assine o FitPower para acompanhar histórico, gráficos, sequência e emitir seu certificado de 5km."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="px-5 pt-8 pb-4 max-w-xl mx-auto">
       <h1 className="text-3xl font-bold">Progresso</h1>
+
 
       {/* Cards */}
       <div className="grid grid-cols-3 gap-3 mt-5">
