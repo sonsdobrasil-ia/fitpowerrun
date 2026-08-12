@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { PLANO, FRASES, workoutKey } from "@/lib/plan";
 import { Play, BookOpen, Flame, Sparkles } from "lucide-react";
+import { useHasAccess } from "@/components/SubscriptionGate";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
