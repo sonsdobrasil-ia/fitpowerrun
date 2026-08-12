@@ -133,6 +133,13 @@ function Reader() {
   const limite = hasAccess ? total : Math.min(limitePreview, total || limitePreview);
   const bloqueado = !loadingAccess && !hasAccess && total > 0 && page >= limite;
 
+  // Não deixa a prévia abrir além do limite (progresso salvo anterior)
+  useEffect(() => {
+    if (loadingAccess || hasAccess || !total) return;
+    setPage((p) => (p > limite ? limite : p));
+  }, [loadingAccess, hasAccess, total, limite]);
+
+
   const go = async (dir: "next" | "prev") => {
     if (flip) return;
     const target = dir === "next" ? page + 1 : page - 1;
