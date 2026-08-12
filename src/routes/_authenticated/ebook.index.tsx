@@ -79,6 +79,24 @@ function Ebook() {
         <BookOpen className="size-8 text-primary mt-1" />
       </header>
 
+      {!loadingAccess && !hasAccess && (
+        <Link
+          to="/planos"
+          className="mt-5 flex items-center gap-3 rounded-2xl border-2 border-dashed border-primary/40 bg-card p-4 shadow-soft"
+        >
+          <Lock className="size-5 text-primary shrink-0" />
+          <div className="flex-1">
+            <p className="font-bold text-sm">Você está no modo prévia</p>
+            <p className="text-xs text-muted-foreground">
+              Assine para ler todos os eBooks por completo · a partir de R$ 9,90
+            </p>
+          </div>
+          <span className="text-muted-foreground">›</span>
+        </Link>
+      )}
+
+
+
       {loading ? (
         <p className="mt-8 text-sm text-muted-foreground">Carregando...</p>
       ) : biblioteca.length === 0 ? (
