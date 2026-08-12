@@ -204,6 +204,21 @@ function Reader() {
         )}
       </div>
 
+      {!loadingAccess && !hasAccess && total > 0 && (
+        <div className="mt-4">
+          {bloqueado ? (
+            <Paywall
+              titulo="Fim da prévia gratuita"
+              descricao={`Você leu as ${limite} páginas liberadas. Assine o FitPower para continuar a leitura completa e liberar toda a biblioteca.`}
+            />
+          ) : (
+            <p className="text-xs text-center text-muted-foreground">
+              Prévia gratuita · {limite} de {total} páginas liberadas
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="mt-4 flex items-center justify-between gap-3">
         <button
           onClick={() => go("prev")}
@@ -214,9 +229,10 @@ function Reader() {
         </button>
         <button
           onClick={() => go("next")}
-          disabled={page >= total}
+          disabled={page >= limite}
           className="flex-1 flex items-center justify-center gap-1 rounded-2xl bg-primary text-primary-foreground font-bold py-3 disabled:opacity-40"
         >
+
           Próxima <ChevronRight className="size-4" />
         </button>
       </div>
