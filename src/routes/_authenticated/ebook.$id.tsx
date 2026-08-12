@@ -5,6 +5,9 @@ import { resolvePdfUrl } from "@/lib/ebook-files";
 import { loadPdf, renderPageToCanvas } from "@/lib/pdf";
 import { ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Paywall, useHasAccess } from "@/components/SubscriptionGate";
+import { previewPages } from "@/lib/plans";
+
 
 export const Route = createFileRoute("/_authenticated/ebook/$id")({
   component: Reader,
