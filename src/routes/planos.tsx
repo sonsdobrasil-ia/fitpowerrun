@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Sparkles, ShieldCheck } from "lucide-react";
-import { PLANOS, BENEFICIOS } from "@/lib/plans";
+import { BENEFICIOS } from "@/lib/plans";
+import { usePlans, formatBRL, periodoLabel } from "@/lib/use-plans";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 
