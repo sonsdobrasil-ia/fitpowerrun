@@ -21,6 +21,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 const tabs: { to: string; icon: any; label: string; exact?: boolean }[] = [
   { to: "/admin", icon: LayoutDashboard, label: "Painel", exact: true },
   { to: "/admin/ebooks", icon: BookOpen, label: "Produtos" },
+  { to: "/admin/plans", icon: CreditCard, label: "Planos" },
   { to: "/admin/users", icon: Users, label: "Usuários" },
   { to: "/admin/billing", icon: Receipt, label: "Faturamento" },
 ];
