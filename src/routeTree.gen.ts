@@ -26,6 +26,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedWorkoutIdRouteImport } from './routes/_authenticated/workout.$id'
 import { Route as AuthenticatedEbookIdRouteImport } from './routes/_authenticated/ebook.$id'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin/plans'
 import { Route as AuthenticatedAdminEbooksRouteImport } from './routes/_authenticated/admin/ebooks'
 import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin/billing'
 import { Route as ApiPublicWebhooksCaktoRouteImport } from './routes/api/public/webhooks/cakto'
@@ -114,6 +115,11 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminPlansRoute = AuthenticatedAdminPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 const AuthenticatedAdminEbooksRoute =
   AuthenticatedAdminEbooksRouteImport.update({
     id: '/ebooks',
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/ebooks/$id': typeof EbooksIdRoute
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/ebook/$id': typeof AuthenticatedEbookIdRoute
   '/workout/$id': typeof AuthenticatedWorkoutIdRoute
@@ -166,6 +173,7 @@ export interface FileRoutesByTo {
   '/ebooks/$id': typeof EbooksIdRoute
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/ebook/$id': typeof AuthenticatedEbookIdRoute
   '/workout/$id': typeof AuthenticatedWorkoutIdRoute
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/ebooks/$id': typeof EbooksIdRoute
   '/_authenticated/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/_authenticated/admin/ebooks': typeof AuthenticatedAdminEbooksRoute
+  '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/ebook/$id': typeof AuthenticatedEbookIdRoute
   '/_authenticated/workout/$id': typeof AuthenticatedWorkoutIdRoute
@@ -212,6 +221,7 @@ export interface FileRouteTypes {
     | '/ebooks/$id'
     | '/admin/billing'
     | '/admin/ebooks'
+    | '/admin/plans'
     | '/admin/users'
     | '/ebook/$id'
     | '/workout/$id'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/ebooks/$id'
     | '/admin/billing'
     | '/admin/ebooks'
+    | '/admin/plans'
     | '/admin/users'
     | '/ebook/$id'
     | '/workout/$id'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/ebooks/$id'
     | '/_authenticated/admin/billing'
     | '/_authenticated/admin/ebooks'
+    | '/_authenticated/admin/plans'
     | '/_authenticated/admin/users'
     | '/_authenticated/ebook/$id'
     | '/_authenticated/workout/$id'
@@ -393,6 +405,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/plans': {
+      id: '/_authenticated/admin/plans'
+      path: '/plans'
+      fullPath: '/admin/plans'
+      preLoaderRoute: typeof AuthenticatedAdminPlansRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/ebooks': {
       id: '/_authenticated/admin/ebooks'
       path: '/ebooks'
@@ -420,6 +439,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminBillingRoute: typeof AuthenticatedAdminBillingRoute
   AuthenticatedAdminEbooksRoute: typeof AuthenticatedAdminEbooksRoute
+  AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
@@ -428,6 +448,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
   {
     AuthenticatedAdminBillingRoute: AuthenticatedAdminBillingRoute,
     AuthenticatedAdminEbooksRoute: AuthenticatedAdminEbooksRoute,
+    AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
