@@ -103,6 +103,96 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_webhook_events: {
+        Row: {
+          created_at: string
+          email: string | null
+          error: string | null
+          event_type: string | null
+          external_id: string | null
+          id: string
+          payload: Json
+          processed: boolean
+          provider: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          error?: string | null
+          event_type?: string | null
+          external_id?: string | null
+          id?: string
+          payload: Json
+          processed?: boolean
+          provider?: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          error?: string | null
+          event_type?: string | null
+          external_id?: string | null
+          id?: string
+          payload?: Json
+          processed?: boolean
+          provider?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
+      plans: {
+        Row: {
+          ativo: boolean
+          cakto_offer_id: string | null
+          checkout_url: string | null
+          created_at: string
+          descricao: string | null
+          destaque: boolean
+          id: string
+          intervalo: string
+          nome: string
+          ordem: number
+          preco: number
+          provider: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          cakto_offer_id?: string | null
+          checkout_url?: string | null
+          created_at?: string
+          descricao?: string | null
+          destaque?: boolean
+          id?: string
+          intervalo?: string
+          nome: string
+          ordem?: number
+          preco?: number
+          provider?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          cakto_offer_id?: string | null
+          checkout_url?: string | null
+          created_at?: string
+          descricao?: string | null
+          destaque?: boolean
+          id?: string
+          intervalo?: string
+          nome?: string
+          ordem?: number
+          preco?: number
+          provider?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -154,7 +244,11 @@ export type Database = {
           current_period_end: string | null
           email: string | null
           id: string
+          plan_id: string | null
           plano: string | null
+          provider: string
+          provider_customer_id: string | null
+          provider_subscription_id: string | null
           status: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -166,7 +260,11 @@ export type Database = {
           current_period_end?: string | null
           email?: string | null
           id?: string
+          plan_id?: string | null
           plano?: string | null
+          provider?: string
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -178,14 +276,26 @@ export type Database = {
           current_period_end?: string | null
           email?: string | null
           id?: string
+          plan_id?: string | null
           plano?: string | null
+          provider?: string
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subscribers_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
