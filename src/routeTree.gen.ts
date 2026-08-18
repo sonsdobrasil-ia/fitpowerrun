@@ -28,6 +28,7 @@ import { Route as AuthenticatedEbookIdRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminEbooksRouteImport } from './routes/_authenticated/admin/ebooks'
 import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin/billing'
+import { Route as ApiPublicWebhooksCaktoRouteImport } from './routes/api/public/webhooks/cakto'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -125,6 +126,11 @@ const AuthenticatedAdminBillingRoute =
     path: '/billing',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const ApiPublicWebhooksCaktoRoute = ApiPublicWebhooksCaktoRouteImport.update({
+  id: '/api/public/webhooks/cakto',
+  path: '/api/public/webhooks/cakto',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/workout/$id': typeof AuthenticatedWorkoutIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/ebook/': typeof AuthenticatedEbookIndexRoute
+  '/api/public/webhooks/cakto': typeof ApiPublicWebhooksCaktoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/workout/$id': typeof AuthenticatedWorkoutIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/ebook': typeof AuthenticatedEbookIndexRoute
+  '/api/public/webhooks/cakto': typeof ApiPublicWebhooksCaktoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/_authenticated/workout/$id': typeof AuthenticatedWorkoutIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/ebook/': typeof AuthenticatedEbookIndexRoute
+  '/api/public/webhooks/cakto': typeof ApiPublicWebhooksCaktoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -208,6 +217,7 @@ export interface FileRouteTypes {
     | '/workout/$id'
     | '/admin/'
     | '/ebook/'
+    | '/api/public/webhooks/cakto'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/workout/$id'
     | '/admin'
     | '/ebook'
+    | '/api/public/webhooks/cakto'
   id:
     | '__root__'
     | '/'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/_authenticated/workout/$id'
     | '/_authenticated/admin/'
     | '/_authenticated/ebook/'
+    | '/api/public/webhooks/cakto'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -257,6 +269,7 @@ export interface RootRouteChildren {
   PlanosRoute: typeof PlanosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   EbooksIdRoute: typeof EbooksIdRoute
+  ApiPublicWebhooksCaktoRoute: typeof ApiPublicWebhooksCaktoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -394,6 +407,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBillingRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/api/public/webhooks/cakto': {
+      id: '/api/public/webhooks/cakto'
+      path: '/api/public/webhooks/cakto'
+      fullPath: '/api/public/webhooks/cakto'
+      preLoaderRoute: typeof ApiPublicWebhooksCaktoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -451,6 +471,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanosRoute: PlanosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   EbooksIdRoute: EbooksIdRoute,
+  ApiPublicWebhooksCaktoRoute: ApiPublicWebhooksCaktoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
