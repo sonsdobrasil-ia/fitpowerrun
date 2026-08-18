@@ -29,10 +29,21 @@ export const Route = createFileRoute("/planos")({
 
 function PlanosPage() {
   const { user } = useAuth();
+  const { plans, loading } = usePlans();
 
-  function assinar() {
-    toast.info("Pagamentos ainda não estão ativos", {
-      description: "Ative a integração de pagamentos para liberar o checkout da assinatura.",
+  function checkoutUrl(url: string) {
+    try {
+      const u = new URL(url);
+      if (user?.email) u.searchParams.set("email", user.email);
+      return u.toString();
+    } catch {
+      return url;
+    }
+  }
+
+  function semLink() {
+    toast.info("Checkout ainda não configurado", {
+      description: "O link de pagamento da Cakto deste plano precisa ser cadastrado na administração.",
     });
   }
 
@@ -52,7 +63,8 @@ function PlanosPage() {
       </header>
 
       <div className="mt-10 grid gap-5 sm:grid-cols-2">
-        {PLANOS.map((p) => (
+        {loading && <p className="text-sm text-muted-foreground">Carregando planos...</p>}
+        {plans.map((p) => (
           <div
             key={p.id}
             className={`rounded-2xl border bg-card p-6 shadow-soft ${
@@ -66,19 +78,14 @@ function PlanosPage() {
             )}
             <h2 className="text-xl font-bold mt-3">{p.nome}</h2>
             <p className="mt-2">
-              <span className="text-4xl font-display font-bold text-primary">{p.precoLabel}</span>
-              <span className="text-muted-foreground">{p.periodo}</span>
+              <span className="text-4xl font-display font-bold text-primary">
+                {formatBRL(p.preco)}
+              </span>
+              <span className="text-muted-foreground">{periodoLabel(p.intervalo)}</span>
             </p>
-            <p className="text-sm text-muted-foreground mt-1">{p.detalhe}</p>
+            {p.descricao && <p className="text-sm text-muted-foreground mt-1">{p.descricao}</p>}
 
-            {user ? (
-              <button
-                onClick={assinar}
-                className="mt-6 w-full rounded-2xl bg-primary text-primary-foreground font-bold py-3.5 active:scale-[0.98] transition"
-              >
-                Assinar {p.nome.toLowerCase()}
-              </button>
-            ) : (
+            {!user ? (
               <Link
                 to="/auth"
                 search={{ mode: "signup" }}
@@ -86,10 +93,27 @@ function PlanosPage() {
               >
                 Criar conta e assinar
               </Link>
+            ) : p.checkout_url ? (
+              <a
+                href={checkoutUrl(p.checkout_url)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 block text-center w-full rounded-2xl bg-primary text-primary-foreground font-bold py-3.5 active:scale-[0.98] transition"
+              >
+                Assinar {p.nome.toLowerCase()}
+              </a>
+            ) : (
+              <button
+                onClick={semLink}
+                className="mt-6 w-full rounded-2xl bg-muted text-muted-foreground font-bold py-3.5"
+              >
+                Assinar {p.nome.toLowerCase()}
+              </button>
             )}
           </div>
         ))}
       </div>
+
 
       <section className="mt-12">
         <h2 className="text-2xl font-bold">O que está incluído</h2>
