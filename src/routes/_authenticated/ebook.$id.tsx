@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { resolvePdfUrl } from "@/lib/ebook-files";
+import { getEbookPdfAccess } from "@/lib/ebook-pdf.functions";
 import { loadPdf, renderPageToCanvas } from "@/lib/pdf";
 import { ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Paywall, useHasAccess } from "@/components/SubscriptionGate";
 import { previewPages } from "@/lib/plans";
+
 
 
 export const Route = createFileRoute("/_authenticated/ebook/$id")({
@@ -34,6 +36,8 @@ function Reader() {
   const images = useRef<Map<number, string>>(new Map());
   const [current, setCurrent] = useState<string | null>(null);
   const userId = useRef<string | null>(null);
+  const fetchPdfAccess = useServerFn(getEbookPdfAccess);
+
 
   // Load ebook + pdf + saved progress
   useEffect(() => {
@@ -52,15 +56,22 @@ function Reader() {
       }
       if (!alive) return;
       setEbook(data as any);
-      const url = await resolvePdfUrl((data as any).pdf_url);
-      if (!url) {
+      let access: Awaited<ReturnType<typeof getEbookPdfAccess>>;
+      try {
+        access = await fetchPdfAccess({ data: { ebookId: id } });
+      } catch {
         if (alive) setLoading(false);
         return toast.error("PDF indisponível");
       }
-      const doc = await loadPdf(url);
+      const doc = await loadPdf(access.url);
       if (!alive) return;
       setPdf(doc);
-      setTotal(doc.numPages);
+      setTotal(
+        access.mode === "preview"
+          ? access.totalPages
+          : ((data as any).paginas ?? doc.numPages),
+      );
+
       if (userId.current) {
         const { data: prog } = await supabase
           .from("ebook_reading_progress")

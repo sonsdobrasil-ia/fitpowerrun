@@ -53,6 +53,7 @@
     "input-otp": "^1.4.2",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.575.0",
+    "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.2.108",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
@@ -86,5 +87,11 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^8.0.16"
+  },
+  "overrides": {
+    "seroval": "^1.6.2"
+  },
+  "resolutions": {
+    "seroval": "^1.6.2"
   }
 }
