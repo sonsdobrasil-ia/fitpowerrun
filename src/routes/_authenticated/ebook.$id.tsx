@@ -56,15 +56,22 @@ function Reader() {
       }
       if (!alive) return;
       setEbook(data as any);
-      const url = await resolvePdfUrl((data as any).pdf_url);
-      if (!url) {
+      let access: Awaited<ReturnType<typeof getEbookPdfAccess>>;
+      try {
+        access = await fetchPdfAccess({ data: { ebookId: id } });
+      } catch {
         if (alive) setLoading(false);
         return toast.error("PDF indisponível");
       }
-      const doc = await loadPdf(url);
+      const doc = await loadPdf(access.url);
       if (!alive) return;
       setPdf(doc);
-      setTotal(doc.numPages);
+      setTotal(
+        access.mode === "preview"
+          ? access.totalPages
+          : ((data as any).paginas ?? doc.numPages),
+      );
+
       if (userId.current) {
         const { data: prog } = await supabase
           .from("ebook_reading_progress")
