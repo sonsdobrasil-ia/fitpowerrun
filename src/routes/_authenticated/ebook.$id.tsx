@@ -36,6 +36,8 @@ function Reader() {
   const images = useRef<Map<number, string>>(new Map());
   const [current, setCurrent] = useState<string | null>(null);
   const userId = useRef<string | null>(null);
+  const fetchPdfAccess = useServerFn(getEbookPdfAccess);
+
 
   // Load ebook + pdf + saved progress
   useEffect(() => {
