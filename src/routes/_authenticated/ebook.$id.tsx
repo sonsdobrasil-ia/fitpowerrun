@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { resolvePdfUrl } from "@/lib/ebook-files";
+import { getEbookPdfAccess } from "@/lib/ebook-pdf.functions";
 import { loadPdf, renderPageToCanvas } from "@/lib/pdf";
 import { ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Paywall, useHasAccess } from "@/components/SubscriptionGate";
 import { previewPages } from "@/lib/plans";
+
 
 
 export const Route = createFileRoute("/_authenticated/ebook/$id")({
