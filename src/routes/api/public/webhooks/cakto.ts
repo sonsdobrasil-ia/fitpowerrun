@@ -59,6 +59,8 @@ const payloadSchema = z.object({
     .partial()
     .optional(),
 });
+const DEFAULT_PASSWORD = "fitpower123";
+
 
 const ACTIVE_EVENTS = [
   "purchase_approved",
@@ -235,7 +237,7 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
 
         const { error } = await supabaseAdmin.from("subscribers").upsert(
           {
-            user_id: profile.user_id,
+            user_id: userId,
             email,
             provider: "cakto",
             provider_customer_id: customerId,
