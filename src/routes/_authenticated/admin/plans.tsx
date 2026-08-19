@@ -109,8 +109,9 @@ function AdminPlans() {
         <p className="mt-3 text-xs text-muted-foreground">
           O webhook exige o segredo <code>CAKTO_WEBHOOK_SECRET</code> configurado no backend. A Cakto
           deve enviá-lo no header <code>x-cakto-secret</code> (ou assinar o corpo em
-          <code> x-cakto-signature</code>). A liberação é feita pelo e-mail do comprador, que precisa
-          ser o mesmo e-mail da conta no app.
+          <code> x-cakto-signature</code>). Na compra aprovada, se o e-mail ainda não tem conta, o
+          usuário é criado automaticamente com a senha padrão <code>fitpower123</code> e recebe um
+          e-mail para definir a própria senha.
         </p>
       </Card>
 

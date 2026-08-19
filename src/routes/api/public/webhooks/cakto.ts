@@ -59,6 +59,8 @@ const payloadSchema = z.object({
     .partial()
     .optional(),
 });
+const DEFAULT_PASSWORD = "fitpower123";
+
 
 const ACTIVE_EVENTS = [
   "purchase_approved",
@@ -181,9 +183,42 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
           .ilike("email", email)
           .maybeSingle();
 
-        if (!profile?.user_id) {
+        let userId = profile?.user_id ?? null;
+
+        // Compra aprovada sem conta no app: cria o usuário com a senha padrão
+        // e pede ao Supabase para enviar o e-mail de definição de senha.
+        if (!userId && activates) {
+          const nome = data.customer?.name?.trim() || email.split("@")[0];
+          const { data: created, error: createError } = await supabaseAdmin.auth.admin.createUser({
+            email,
+            password: DEFAULT_PASSWORD,
+            email_confirm: true,
+            user_metadata: { nome },
+          });
+
+          if (createError || !created?.user) {
+            // Pode já existir em auth.users sem profile — tenta localizar.
+            const { data: list } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+            const found = list?.users.find((u) => u.email?.toLowerCase() === email);
+            if (!found) {
+              console.error("[cakto] falha ao criar usuário", createError?.message);
+              return finish(false, createError?.message ?? "falha ao criar usuário");
+            }
+            userId = found.id;
+          } else {
+            userId = created.user.id;
+            const origin = new URL(request.url).origin;
+            const { error: mailError } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+              redirectTo: `${origin}/reset-password`,
+            });
+            if (mailError) console.error("[cakto] falha ao enviar e-mail", mailError.message);
+          }
+        }
+
+        if (!userId) {
           return finish(false, `nenhum usuário encontrado para ${email}`);
         }
+
 
         // Descobre o plano pela oferta cadastrada
         let planId: string | null = null;
@@ -202,7 +237,7 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
 
         const { error } = await supabaseAdmin.from("subscribers").upsert(
           {
-            user_id: profile.user_id,
+            user_id: userId,
             email,
             provider: "cakto",
             provider_customer_id: customerId,
