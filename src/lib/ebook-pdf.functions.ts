@@ -37,16 +37,30 @@ export const getEbookPdfAccess = createServerFn({ method: "POST" })
       (!sub.current_period_end || new Date(sub.current_period_end).getTime() > Date.now());
     const entitled = isAdmin || activeSub;
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const path = ebook.pdf_url;
     const isRemote = /^https?:\/\//i.test(path);
 
+    // Cliente admin é necessário apenas para a prévia gratuita (download server-side).
+    const loadAdmin = async () => {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        return supabaseAdmin;
+      } catch {
+        throw new Error(
+          "Backend sem configuração: defina SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no ambiente do servidor.",
+        );
+      }
+    };
+
     if (entitled) {
       if (isRemote) return { mode: "full" as const, url: path };
-      const { data: signed, error: signErr } = await supabaseAdmin.storage
+      // Usa o cliente do próprio usuário (RLS libera admin/assinante ativo)
+      const { data: signed, error: signErr } = await supabase.storage
         .from("ebook-pdfs")
         .createSignedUrl(path, 60 * 60 * 6);
-      if (signErr || !signed) throw new Error("Não foi possível abrir o PDF");
+      if (signErr || !signed) {
+        throw new Error(`Não foi possível abrir o PDF: ${signErr?.message ?? "sem URL assinada"}`);
+      }
       return { mode: "full" as const, url: signed.signedUrl };
     }
 
@@ -54,13 +68,17 @@ export const getEbookPdfAccess = createServerFn({ method: "POST" })
     let bytes: Uint8Array;
     if (isRemote) {
       const res = await fetch(path);
-      if (!res.ok) throw new Error("Não foi possível abrir o PDF");
+      if (!res.ok) throw new Error(`Não foi possível baixar o PDF (HTTP ${res.status})`);
       bytes = new Uint8Array(await res.arrayBuffer());
     } else {
-      const { data: file, error: dlErr } = await supabaseAdmin.storage.from("ebook-pdfs").download(path);
-      if (dlErr || !file) throw new Error("Não foi possível abrir o PDF");
+      const admin = await loadAdmin();
+      const { data: file, error: dlErr } = await admin.storage.from("ebook-pdfs").download(path);
+      if (dlErr || !file) {
+        throw new Error(`Não foi possível abrir a prévia: ${dlErr?.message ?? "arquivo não encontrado"}`);
+      }
       bytes = new Uint8Array(await file.arrayBuffer());
     }
+
 
     const { PDFDocument } = await import("pdf-lib");
     const src = await PDFDocument.load(bytes, { ignoreEncryption: true });
