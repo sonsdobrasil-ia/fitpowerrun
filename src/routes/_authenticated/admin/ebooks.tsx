@@ -274,15 +274,18 @@ function AdminEbooks() {
                       maxLength={200}
                     />
                   </Field>
-                  <Field label="Descrição" error={err("descricao")}>
-                    <Textarea
-                      rows={4}
-                      value={editing.descricao ?? ""}
-                      onChange={(e) => setEditing({ ...editing, descricao: e.target.value })}
-                      maxLength={2000}
-                    />
-                  </Field>
                 </div>
+              </div>
+
+              <Field label="Descrição" error={err("descricao")}>
+                <Textarea
+                  rows={6}
+                  value={editing.descricao ?? ""}
+                  onChange={(e) => setEditing({ ...editing, descricao: e.target.value })}
+                  maxLength={2000}
+                  className="min-h-[160px] resize-y"
+                />
+              </Field>
               </div>
 
               <div className="grid sm:grid-cols-3 gap-3">
