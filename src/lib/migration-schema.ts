@@ -37,20 +37,6 @@ begin
 end;
 $$;
 
--- Verificação de papel (role) em schema privado: não é executável via API.
-create or replace function private.has_role(_user_id uuid, _role public.app_role)
-returns boolean
-language sql
-stable
-security definer
-set search_path to 'public'
-as $$
-  select exists (
-    select 1 from public.user_roles
-    where user_id = _user_id and role = _role
-  )
-$$;
-
 -- ---------------------------------------------------------------------
 -- 3. Tabelas
 -- ---------------------------------------------------------------------
@@ -80,7 +66,6 @@ create policy "own profile select" on public.profiles for select to authenticate
 create policy "own profile insert" on public.profiles for insert to authenticated with check (auth.uid() = user_id);
 create policy "own profile update" on public.profiles for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "own profile delete" on public.profiles for delete to authenticated using (auth.uid() = user_id);
-create policy "admins read all profiles" on public.profiles for select to authenticated using (private.has_role(auth.uid(), 'admin'));
 
 create trigger profiles_touch before update on public.profiles
 for each row execute function public.touch_updated_at();
@@ -97,6 +82,23 @@ create table if not exists public.user_roles (
 grant select on public.user_roles to authenticated;
 grant all on public.user_roles to service_role;
 alter table public.user_roles enable row level security;
+
+-- Verificação de papel (role) em schema privado: não é executável via API.
+-- Criada depois de public.user_roles porque funções SQL validam as relações referenciadas.
+create or replace function private.has_role(_user_id uuid, _role public.app_role)
+returns boolean
+language sql
+stable
+security definer
+set search_path to 'public'
+as $$
+  select exists (
+    select 1 from public.user_roles
+    where user_id = _user_id and role = _role
+  )
+$$;
+
+create policy "admins read all profiles" on public.profiles for select to authenticated using (private.has_role(auth.uid(), 'admin'));
 
 create policy "users see own roles" on public.user_roles for select to authenticated using (auth.uid() = user_id);
 create policy "admins see all roles" on public.user_roles for select to authenticated using (private.has_role(auth.uid(), 'admin'));
