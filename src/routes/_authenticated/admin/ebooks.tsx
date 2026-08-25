@@ -286,7 +286,6 @@ function AdminEbooks() {
                   className="min-h-[160px] resize-y"
                 />
               </Field>
-              </div>
 
               <div className="grid sm:grid-cols-3 gap-3">
                 <Field label="Categoria *" error={err("categoria")}>
