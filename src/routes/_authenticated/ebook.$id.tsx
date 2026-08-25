@@ -59,10 +59,12 @@ function Reader() {
       let access: Awaited<ReturnType<typeof getEbookPdfAccess>>;
       try {
         access = await fetchPdfAccess({ data: { ebookId: id } });
-      } catch {
+      } catch (e: any) {
         if (alive) setLoading(false);
-        return toast.error("PDF indisponível");
+        console.error("[ebook] falha ao obter PDF", e);
+        return toast.error(e?.message ? `PDF indisponível: ${e.message}` : "PDF indisponível");
       }
+
       const doc = await loadPdf(access.url);
       if (!alive) return;
       setPdf(doc);
